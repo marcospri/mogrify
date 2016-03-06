@@ -159,14 +159,8 @@ defmodule Mogrify do
     image
   end
 
-  def auto_orient(image) do
-    run image.path, "auto-orient"
-    image
-  end
-
-  def custom(image, action, options \\ nil) do
-    run image.path, action, options
-    image
+  defp runargs(path, params) do
+    "convert #{params}" |> String.to_char_list |> :os.cmd |> to_string
   end
 
   defp run(path, option, params \\ nil) do
