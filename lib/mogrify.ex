@@ -18,6 +18,47 @@ defmodule Mogrify do
     %Image{mode: mode, width: width, height: height, shapes: []}
   end
 
+  @doc """
+  Creates a new rectangle in the given image
+  """
+  def rectangle(image, x1, y1, x2, y2, color) do
+    shapes = image.shapes ++  [{:rect, {x1, y1, x2, y2}, color}]
+    %{image | shapes: shapes}
+  end
+
+  @doc """
+  Takes a rectangles and creates the `convert` args needed to draw it
+  """
+  def draw(image, args, [{:rect, {w, h, x2, y2}, {r, g, b}} | s]) do
+    x1 = x2
+    y1 = y2
+    x2 = x2 + w
+    y2 = y2 + h
+    
+    args = ~s(#{args} -fill "rgb\(#{r}, #{g}, #{b}\)" -stroke black -draw "rectangle #{x1},#{y1} #{x2},#{y2}")
+    draw(image, args, s)
+  end
+
+  @doc """
+  Once all shapes have been converted to convert args call the comand on the image path
+  """
+  def draw(image, args, []) do
+    args = ~s(#{args} #{String.replace(image.path, " ", "\\ ")})
+    runargs(image.path, args)
+    image |> verbose
+  end
+
+  @doc """
+  Draws all shapes in the image to disk"
+  """
+  def draw(image, path) do
+    args = "-size #{image.width}x#{image.height} xc:white"
+
+    image = %{image | path: path}
+    draw(image, args, image.shapes)
+  end 
+
+  @doc """
   Saves modified image
   """
   def save(image, path) do
