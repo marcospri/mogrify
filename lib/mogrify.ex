@@ -108,6 +108,49 @@ defmodule Mogrify do
     image |> verbose
   end
 
+  def get_histogrtam_line_rgb(histogram_line) do
+    rgb_string =
+        histogram_line
+        |> String.split("#")
+        |> List.first
+        |> String.strip
+
+    [_, r, g, b] = Regex.run(~r/(\s*\d+),(\s*\d+),(\s*\d+)/, rgb_string)
+
+    {
+        String.to_integer(r |> String.strip),
+        String.to_integer(g |> String.strip),
+        String.to_integer(b |> String.strip)
+    }
+  end
+
+  def parse_histogram(histogram) do
+    histogram 
+    |> String.strip
+    |> String.split("\n") 
+    |> Enum.map(fn(x) -> 
+        parts = String.split(x, ":") 
+        {
+            parts
+            |> List.first 
+            |> String.strip 
+            |> String.to_integer,
+            parts
+            |> List.last
+            |> get_histogrtam_line_rgb
+        }
+    end)
+  end
+
+  def histogram(image) do
+    colors = runargs("convert", "#{image.path} +dither -colors 256 -depth 8 -format %c histogram:info:-")
+    parse_histogram(colors)
+  end
+
+  def max_color(histogram) do
+    Enum.max(histogram)
+  end
+
   @doc """
   Crop the image with provided geometry
   """
