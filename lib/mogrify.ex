@@ -12,6 +12,12 @@ defmodule Mogrify do
   end
 
   @doc """
+  Creates a new images  given mode and size
+  """
+  def new(mode, width, height) do
+    %Image{mode: mode, width: width, height: height, shapes: []}
+  end
+
   Saves modified image
   """
   def save(image, path) do
