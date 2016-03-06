@@ -109,6 +109,14 @@ defmodule Mogrify do
   end
 
   @doc """
+  Crop the image with provided geometry
+  """
+  def crop(image, params) do
+    {_, 0} = run(image.path, "crop", params)
+    image |> verbose
+  end
+
+  @doc """
   Extends the image to the specified dimensions
   """
   def extent(image, params) do
